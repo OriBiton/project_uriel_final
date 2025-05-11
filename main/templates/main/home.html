@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>בית</title>
+
+    <!-- Bootstrap קודם -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- קובץ העיצוב האישי שלך -->
+    <link rel="stylesheet" href="{% static 'main/home.css' %}">
+
+    <!-- FullCalendar -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+        <div class="container d-flex justify-content-between align-items-center">
+          <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">🏠 דף הבית</a>
+      
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+      
+          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <ul class="navbar-nav gap-4">
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">בית</a>
+              </li>
+              {% if request.user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}">ניהול</a>
+                </li>
+              {% endif %}
+              <li class="nav-item">
+                <a class="nav-link" href="#calendar">פגישות</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#contact">צור קשר</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}" href="{% url 'edit_profile' %}">עריכת פרטים</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div id="bookedMeetingArea"></div>
+
+    
+
+    <!-- תוכן הדף -->
+    <div class="container py-5">
+        {% if messages %}
+            <div class="container mt-4">
+                {% for message in messages %}
+                    <div class="alert alert-success shadow-sm text-center" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- ברכה -->
+        <div class="alert alert-info text-center shadow-sm mt-4">
+            <h4>ברוכים הבאים {{ full_name }}</h4>
+            <p><strong>מיקום הנכס:</strong> {{ apartment_location }}</p>
+            <p class="mt-2">כאן תוכלו לתאם פגישה, לצפות בסרטון ההסבר ולקבל מידע מוקדם. בסיום, תוכלו גם לבחור את הפריטים המועדפים לביתכם.</p>
+        </div>
+
+        <!-- וידאו -->
+        <div class="video-background mb-5">
+            <h4 class="video-title">יש לצפות בסרטון ההסבר לפני שממשיכים</h4>
+            <div class="video-container">
+                <iframe src="https://www.youtube.com/embed/Lwv6uvV7Cbk" allow="autoplay" allowfullscreen></iframe>
+            </div>
+        </div>
+        <div class="alert alert-warning mt-4 text-center shadow-sm">
+            ⚠️ שימו לב: לא ניתן לבטל פגישה באופן ידני. לביטול פגישה יש ליצור קשר עם אוריאל בטלפון <a href="tel:+972528109554">052-810-9554</a> או בדוא"ל <a href="mailto:shinuyd3@gmail.com">shinuyd3@gmail.com</a>.
+        </div>
+        <!-- קלנדר -->
+        <div class="calendar-section" id="calendar-section">
+            <h2 class="text-center mb-4">בחר פגישה פנויה</h2>
+            <div id="calendar"></div>
+            
+
+        </div>
+        
+        
+        <!-- אזור מעבר לבחירת מוצרים -->
+        <div class="selection-info-section text-center mt-5 p-4 bg-light rounded shadow-sm">
+            <h3 class="mb-3">🔹 בחירת מוצרי הבית</h3>
+            <p class="mb-4">
+                לאחר קביעת פגישה, יש לבחור את מוצרי הבית המועדפים עליכם מתוך מגוון אפשרויות. 
+                הבחירות יישמרו עבורכם כחלק מתהליך ההתאמה האישית של הדירה.
+            </p>
+            <a href="{% url 'product_selection' %}" class="btn btn-primary btn-lg">מעבר לבחירת מוצרים</a>
+        </div>
+
+
+    </div>
+
+    <!-- מודאל לתיאום פגישה -->
+    <div id="meetingModal" class="modal">
+        <div class="modal-content">
+            <h3>פגישות פנויות ביום זה</h3>
+            <div id="meetingOptions"></div>
+            <button onclick="closeModal()">סגור</button>
+        </div>
+    </div>
+
+    <!-- סקריפט קלנדר -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var availableMeetings = {{ meetings_json|safe }};
+        var userMeeting = {{ user_meeting_json|safe }};  // 👈 מגיע מה־context
+
+        if (userMeeting) {
+            availableMeetings.push(userMeeting);  // מוסיף את הפגישה האישית ללוח
+        }
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            selectable: true,
+            events: availableMeetings.map(m => ({
+            id: m.id,
+            title: `פגישה באתר ${m.location || ''} בשעה ${m.time || ''}`,
+            start: `${m.date}T${m.time}:00`,
+            color: m.color || '#74ebd5'
+        })),
+
+
+            dateClick: function(info) {
+                if (userMeeting) {
+                    alert("כבר קבעת פגישה. לא ניתן לקבוע נוספת.");
+                    return;
+                }
+
+                var clickedDate = info.dateStr;
+                var dayMeetings = availableMeetings.filter(m => m.date === clickedDate && (!userMeeting || m.id !== userMeeting.id));
+
+                if (dayMeetings.length > 0) {
+                    var optionsHtml = "";
+                    dayMeetings.forEach(function(mtg) {
+                        optionsHtml += `<button onclick="bookMeeting(${mtg.id})">${mtg.time}</button><br>`;
+                    });
+                    document.getElementById('meetingOptions').innerHTML = optionsHtml;
+                    openModal();
+                } else {
+                    alert("אין פגישות פנויות ביום זה.");
+                }
+            }
+        });
+
+        calendar.render();
+    });
+
+
+    function openModal() {
+        document.getElementById('meetingModal').style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById('meetingModal').style.display = "none";
+    }
+
+    function bookMeeting(meetingId) {
+        fetch('/book_meeting/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ meeting_id: meetingId })
+        })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'success') {
+                // הצלחה -> תראה הודעה יפה
+                showBookedMeeting(data.time, data.date);
+                closeModal();
+            } else if (data.error) {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('אירעה שגיאה בעת תיאום הפגישה.');
+        });
+    }
+
+
+
+    function showBookedMeeting(time, date) {
+        const bookedArea = document.getElementById('bookedMeetingArea');
+        bookedArea.innerHTML = `
+            <div class="alert alert-success shadow-sm mt-4" role="alert">
+                ✅ הפגישה תואמה בהצלחה!<br>
+                <strong>תאריך:</strong> ${date}<br>
+                <strong>שעה:</strong> ${time}
+            </div>
+        `;
+        bookedArea.scrollIntoView({ behavior: 'smooth' });
+    }
+
+
+    </script>
+    <footer class="footer bg-white shadow-sm py-4 mt-5" id="contact">
+        <div class="container text-center">
+          <p class="mb-2 fw-bold text-primary">📞 צור קשר</p>
+          <p class="mb-1">✉️ דוא"ל: <a href="mailto:contact@example.com">shinuyd3@gmail.com</a></p>
+          <p>📱 טלפון: <a href="tel:+972501234567">052-810-9554</a></p>
+          
+        </div>
+    </footer>
+      
+</body>
+</html>

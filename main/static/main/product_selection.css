@@ -1,0 +1,17 @@
+body {
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.form-select {
+    border-radius: 8px;
+}

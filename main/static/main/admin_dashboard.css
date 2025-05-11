@@ -1,0 +1,34 @@
+body {
+    background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2 {
+    color: #2c3e50;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+button.btn-success, button.btn-primary {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+button.btn-success:hover {
+    background-color: #4CAF50;
+}
+
+button.btn-primary:hover {
+    background-color: #007bff;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}

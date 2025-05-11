@@ -1,0 +1,72 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>עריכת פרופיל</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/edit_profile.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="floating-box">
+            <h2>עריכת פרטים אישיים</h2>
+
+            
+
+            <form method="post" action="{% url 'edit_profile' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="first_name" class="form-label">שם פרטי</label>
+                        <input type="text" name="first_name" id="first_name" class="form-control" value="{{ form.first_name.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="last_name" class="form-label">שם משפחה</label>
+                        <input type="text" name="last_name" id="last_name" class="form-control" value="{{ form.last_name.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">אימייל</label>
+                        <input type="email" name="email" id="email" class="form-control" value="{{ form.email.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone_number" class="form-label">מספר טלפון</label>
+                        <input type="text" name="phone_number" id="phone_number" class="form-control" value="{{ form.phone_number.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="city" class="form-label">עיר</label>
+                        <input type="text" name="city" id="city" class="form-control" value="{{ form.city.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="street" class="form-label">רחוב</label>
+                        <input type="text" name="street" id="street" class="form-control" value="{{ form.street.value }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="building_number" class="form-label">מספר בניין</label>
+                        <input type="text" name="building_number" id="building_number" class="form-control" value="{{ form.building_number.value }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="apartment_number" class="form-label">מספר דירה</label>
+                        <input type="text" name="apartment_number" id="apartment_number" class="form-control" value="{{ form.apartment_number.value }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="floor_number" class="form-label">קומה</label>
+                        <input type="text" name="floor_number" id="floor_number" class="form-control" value="{{ form.floor_number.value }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="postal_code" class="form-label">מיקוד</label>
+                        <input type="text" name="postal_code" id="postal_code" class="form-control" value="{{ form.postal_code.value }}">
+                    </div>
+                </div>
+            
+                <div class="d-flex justify-content-center mt-4">
+                    <button type="submit" class="btn btn-success me-2">שמירת שינויים</button>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">ביטול</a>
+                </div>
+            </form>
+            
+            
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>בחירת מוצרים לבית</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/product_selection.css' %}">
+</head>
+
+<body>
+<div class="container py-5">
+
+    <h1 class="text-center mb-5">🏡 בחירת מוצרים לבית</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success text-center">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {% for category in categories %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{{ category.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <select class="form-select" name="category_{{ category.id }}">
+                        <option value="">-- בחר אפשרות --</option>
+                        {% for option in category.options.all %}
+                            <option value="{{ option.id }}" {% if option.id in selected_ids %}selected{% endif %}>
+                                {{ option.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        {% endfor %}
+        
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-primary btn-lg px-5">
+                המשך לקבלת חוזה
+            </button>
+            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg px-5">
+                חזרה למסך הבית
+            </a>
+        </div>
+       
+    </form>
+
+</div>
+</body>
+</html>

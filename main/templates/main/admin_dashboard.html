@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ניהול מערכת</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'main/admin_dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">🏠 דף הבית</a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav gap-4">
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">בית</a>
+          </li>
+          {% if request.user.is_superuser %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">ניהול</a>
+            </li>
+          {% endif %}
+          <li class="nav-item">
+            <a class="nav-link" href="#calendar">פגישות</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">צור קשר</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link {% if request.resolver_match.url_name == 'edit_profile' %}active{% endif %}" href="{% url 'edit_profile' %}">עריכת פרטים</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+</nav>
+
+<div class="container my-5">
+
+    <h1 class="text-center mb-5">🎛️ לוח ניהול</h1>
+
+    <!-- משתמשים -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">📋 משתמשים רשומים</h2>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>שם משתמש</th>
+                        <th>אימייל</th>
+                        <th>תאריך הרשמה</th>
+                        <th>סופר יוזר?</th>
+                        <th>צוות?</th>
+                        <th>מחיקה</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                            <td>{% if user.is_superuser %}✔️{% else %}❌{% endif %}</td>
+                            <td>{% if user.is_staff %}✔️{% else %}❌{% endif %}</td>
+                            <td>
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="delete_user">
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('האם למחוק את המשתמש?')">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- הוספת משתמש -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">➕ הוסף משתמש חדש</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="create_user">
+            {{ create_user_form.as_p }}
+            <button type="submit" name="create_user" class="btn btn-success">הוסף משתמש</button>
+        </form>
+    </section>
+
+    <!-- פגישות עתידיות -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">📅 פגישות עתידיות ופגישות פתוחות</h2>
+        <div id="futureBookingsCalendar"></div>
+    </section>
+
+    <!-- פגישות פנויות -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">🗓️ פגישות פנויות</h2>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>תאריך</th>
+                        <th>שעה</th>
+                        <th>מחיקה</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meeting in open_meetings %}
+                        <tr>
+                            <td>{{ meeting.date|date:"d/m/Y" }}</td>
+                            <td>{{ meeting.time|time:"H:i" }}</td>
+                            <td>
+                                <form method="POST" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="form_type" value="delete_meeting">
+                                    <input type="hidden" name="meeting_id" value="{{ meeting.id }}">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('למחוק את הפגישה?')">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- הוספת פגישה חדשה -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">➕ הוסף פגישה חדשה</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="create_meeting">
+            {{ available_meeting_form.as_p }}
+            <button type="submit" name="create_meeting" class="btn btn-primary">הוסף פגישה</button>
+        </form>
+    </section>
+    <!-- בחירות משתמשים -->
+    <section class="card p-4 shadow mb-5">
+        <h2 class="mb-4">🎯 בחירות המוצרים של משתמשים</h2>
+        <div class="table-responsive">
+            <table class="table table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>משתמש</th>
+                        <th>מוצרים שנבחרו</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for selection in user_selections %}
+                        <tr>
+                            <td>{{ selection.user.username }}</td>
+                            <td>
+                                {% for option in selection.selected_options.all %}
+                                    <span class="badge bg-primary m-1">{{ option.category.name }} - {{ option.name }}</span>
+                                {% empty %}
+                                    <span class="text-muted">לא בוצעה בחירה</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- כפתור חזרה הביתה -->
+    <div class="text-center mt-5">
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg px-5">
+            🔙 חזרה למסך הבית
+        </a>
+    </div>
+
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('futureBookingsCalendar');
+
+    var futureMeetings = [
+        {% for booking in future_bookings %}
+        {
+            title: '{{ booking.user.username }} - {{ booking.meeting.location }} - {{ booking.meeting.time|time:"H:i" }}',
+            start: '{{ booking.meeting.date|date:"Y-m-d" }}T{{ booking.meeting.time|time:"H:i" }}',
+            color: '#28a745'
+        },
+        {% endfor %}
+
+        {% for slot in open_meetings %}
+        {
+            title: 'פגישה פנויה באתר {{ slot.location }} - בשעה {{ slot.time|time:"H:i" }}',
+            start: '{{ slot.date|date:"Y-m-d" }}T{{ slot.time|time:"H:i" }}',
+            color: '#ffc107'
+        },
+        {% endfor %}
+
+    ];
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: futureMeetings,
+        locale: 'he'
+    });
+
+    calendar.render();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרופיל משתמש</title>
+    <link rel="stylesheet" href="{% static 'main/user_profile.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="header-text">
+            <h1>🔹 פרופיל משתמש</h1>
+            <p>רגע לפני שממשיכים, אנא מלא את פרטיך האישיים</p>
+        </div>
+
+        <div class="profile-card">
+            <form method="post" action="{% url 'user_profile' %}">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="first_name">שם פרטי</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">שם משפחה</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">אימייל</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone_number">מספר טלפון</label>
+                        <input type="text" id="phone_number" name="phone_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="city">עיר</label>
+                        <input type="text" id="city" name="city">
+                    </div>
+                    <div class="form-group">
+                        <label for="street">רחוב</label>
+                        <input type="text" id="street" name="street">
+                    </div>
+                    <div class="form-group">
+                        <label for="building_number">מספר בניין</label>
+                        <input type="text" id="building_number" name="building_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="apartment_number">מספר דירה</label>
+                        <input type="text" id="apartment_number" name="apartment_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="floor_number">קומה</label>
+                        <input type="text" id="floor_number" name="floor_number">
+                    </div>
+                    <div class="form-group">
+                        <label for="postal_code">מיקוד</label>
+                        <input type="text" id="postal_code" name="postal_code">
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit">שמירת פרטים</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

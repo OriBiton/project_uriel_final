@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התחברות</title>
+    <link rel="stylesheet" href="{% static 'main/login.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="floating-box">
+            <h2>התחברות</h2>
+
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                    {% comment %} Force clearing messages after displaying {% endcomment %}
+                    {% for _ in messages %}{% endfor %}
+                </div>
+            {% endif %}
+
+
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="תעודת זהות" required><br>
+                <input type="password" name="password" placeholder="סיסמה" required><br>
+                <button type="submit">התחברות</button>
+            </form>
+            <p>אין לך עדיין משתמש?</p>
+            <p>אנא צרו איתנו קשר במספר:052-810-9554 לצורך מתן עזרה</p>
+        </div>
+    </div>
+</body>
+</html>
