@@ -12,6 +12,7 @@ urlpatterns = [
     path('admin_dashboard/', views.admin_dashboard_view, name='admin_dashboard'),
     path('product-selection/', views.product_selection_view, name='product_selection'),
      path('contract/pdf/', views.contract_preview_view, name='contract_preview_view'),
+     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
      
 
 ]
