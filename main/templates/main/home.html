@@ -31,11 +31,11 @@
               <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">בית</a>
               </li>
-              {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'logout' %}">🚪 התנתקות</a>
-                </li>
-              {% endif %}
+              
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">🚪 התנתקות</a>
+              </li>
+              
               {% if request.user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'admin_dashboard' %}">ניהול</a>

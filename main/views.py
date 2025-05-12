@@ -165,6 +165,10 @@ from django.contrib.auth import get_user_model
 # views.py
 from django.contrib import messages
 from django.shortcuts import redirect
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 @login_required
 @csrf_exempt
