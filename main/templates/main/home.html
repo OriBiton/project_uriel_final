@@ -70,7 +70,14 @@
             <p><strong>מיקום הנכס:</strong> {{ apartment_location }}</p>
             <p class="mt-2">כאן תוכלו לתאם פגישה, לצפות בסרטון ההסבר ולקבל מידע מוקדם. בסיום, תוכלו גם לבחור את הפריטים המועדפים לביתכם.</p>
         </div>
-
+        {% if meeting_info %}
+            <div class="alert alert-success text-center shadow-sm mt-4" role="alert">
+                ✅ יש לך פגישה שנקבעה:
+                <br><strong>תאריך:</strong> {{ meeting_info.date }}
+                <br><strong>שעה:</strong> {{ meeting_info.time }}
+                <br><strong>מיקום:</strong> {{ meeting_info.location }}
+            </div>
+        {% endif %}
         <!-- וידאו -->
         <div class="video-background mb-5">
             <h4 class="video-title">יש לצפות בסרטון ההסבר לפני שממשיכים</h4>

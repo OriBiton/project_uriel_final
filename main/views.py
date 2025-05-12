@@ -143,9 +143,17 @@ def home_view(request):
         full_name = request.user.usernam
     if not full_name:
         full_name = request.user.username  # fallback אם לא הוגדר שם פרטי/משפחה
+    meeting_info_html = None
+    if existing_meeting:
+        meeting_info_html = {
+            'date': m.date.strftime('%d/%m/%Y'),
+            'time': m.time.strftime('%H:%M'),
+            'location': m.location
+        }
 
     context = {
         'booking_form': booking_form,
+        'meeting_info': meeting_info_html,
         'contact_form': contact_form,
         'meetings_json': json.dumps(meetings),
         'user_meeting_json': json.dumps(user_meeting_data) if user_meeting_data else 'null' ,
