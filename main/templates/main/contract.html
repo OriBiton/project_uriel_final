@@ -210,12 +210,13 @@
             <tr>
                 <td>
                     <u>איש קשר 1</u><br><br>
-                    שם פרטי: <span class="input-line"></span><br>
-                    שם משפחה: <span class="input-line"></span><br>
-                    תעודת זהות: <span class="input-line"></span><br>
-                    טלפון: <span class="input-line"></span><br>
-                    דוא"ל: <span class="input-line"></span><br>
+                    שם פרטי: <span class="input-line">{{ user_profile.first_name }}</span><br>
+                    שם משפחה: <span class="input-line">{{ user_profile.last_name }}</span><br>
+                    תעודת זהות: <span class="input-line">{{ user_profile.user }}</span><br>
+                    טלפון: <span class="input-line">{{ user_profile.phone_number }}</span><br>
+                    דוא"ל: <span class="input-line">{{ user_profile.email }}</span><br>
                 </td>
+
                 <td>
                     <u>איש קשר 2</u><br><br>
                     שם פרטי: <span class="input-line"></span><br>

@@ -348,15 +348,19 @@ def product_selection_view(request):
         'categories': categories,
         'selected_ids': selected_ids,
     })
+from .models import UserProfile
+
 @login_required
 def contract_preview_view(request):
     apartment = PurchasedApartment.objects.filter(user=request.user).first()
     user_selection = UserSelection.objects.get(user=request.user)
     selected_options = user_selection.selected_options.all()
+    user_profile = UserProfile.objects.filter(user=request.user).first()
 
     context = {
         'selections': selected_options,
         'apartment_location': f"{apartment.city}, {apartment.street} {apartment.building_number}, דירה {apartment.apartment_number}" if apartment else "לא נמצא מיקום",
         'current_date': date.today().strftime('%d/%m/%y'),
+        'user_profile': user_profile,
     }
     return render(request, 'main/contract.html', context)
