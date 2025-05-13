@@ -230,12 +230,23 @@
     </div>
 
     <div class="form-section">
-        <strong>פרטים למשלוח דואר:</strong><br><br>
-        רחוב: <span class="input-line">{{ user_profile.street}}</span><br>
-        מס' דירה: <span class="input-line"></span><br>
-        עיר: <span class="input-line"></span><br>
-        מיקוד: <span class="input-line"></span><br>
+        <strong>📬 פרטי משלוח:</strong><br><br>
+        
+        <div>🏠 רחוב: <span class="input-line">{{ user_profile.street }}</span></div>
+    
+        <div>🏢 כתובת מלאה:
+            <span class="input-line">
+                בניין {{ user_profile.bulding_number }},
+                דירה {{ user_profile.apartment_number }},
+                קומה {{ user_profile.floor_number }}
+            </span>
+        </div>
+    
+        <div>🏙️ עיר: <span class="input-line">{{ user_profile.city }}</span></div>
+    
+        <div>📮 מיקוד: <span class="input-line">{{ user_profile.postal_code }}</span></div>
     </div>
+
     <div class="section">
         <h2>חתימות</h2>
         <table class="signature-table">
