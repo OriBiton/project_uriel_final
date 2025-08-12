@@ -324,8 +324,71 @@ from django.contrib.auth.decorators import login_required
 from .models import ProductCategory, ProductOption, UserSelection
 from django.contrib import messages
 
+# views.py
+import os, csv
+from django.conf import settings
+from django.db import transaction, IntegrityError
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .models import ProductCategory, ProductOption, UserSelection
+
+
+def _seed_products_from_csv_if_needed():
+    """
+    ממלא את הטבלאות ProductCategory/ProductOption מתוך main/data/selection.csv
+    רק אם אין עדיין קטגוריות ב־DB. רץ אוטומטית בבקשה הראשונה לעמוד.
+    """
+    if ProductCategory.objects.exists():
+        return  # כבר יש נתונים
+
+    # נתיב לקובץ בתוך הפרויקט
+    csv_path = os.path.join(settings.BASE_DIR, "main", "data", "products.csv")
+    if not os.path.exists(csv_path):
+        # אין קובץ – פשוט לא נזרעים נתונים, העמוד יישאר ריק
+        return
+
+    try:
+        with open(csv_path, newline="", encoding="utf-8") as f, transaction.atomic():
+            reader = csv.DictReader(f)
+            if not reader.fieldnames:
+                return
+
+            # העמודה הראשונה 'לקוחות' לא רלוונטית לקטגוריות
+            id_col = "לקוחות"
+            category_cols = [c for c in reader.fieldnames if c and c.strip() != id_col]
+
+            # צור קטגוריות
+            cats = {
+                col: ProductCategory.objects.get_or_create(name=col.strip())[0]
+                for col in category_cols
+            }
+
+            # אסוף ערכים ייחודיים לכל קטגוריה
+            values_by_cat = {col: set() for col in category_cols}
+            for row in reader:
+                for col in category_cols:
+                    val = (row.get(col) or "").strip()
+                    if val and val != "-":
+                        values_by_cat[col].add(val)
+
+            # צור אופציות
+            for col, values in values_by_cat.items():
+                cat = cats[col]
+                for val in values:
+                    ProductOption.objects.get_or_create(category=cat, name=val)
+
+    except Exception as e:
+        # לא מפילים את העמוד אם יש תקלה; פשוט לא ייטען כלום
+        # אפשר לרשום ל-log אם יש לכם לוגר
+        pass
+
+
 @login_required
 def product_selection_view(request):
+    # זורעים נתונים פעם ראשונה אם צריך
+    _seed_products_from_csv_if_needed()
+
     categories = ProductCategory.objects.prefetch_related('options').all()
     user_selection, created = UserSelection.objects.get_or_create(user=request.user)
 
@@ -335,12 +398,11 @@ def product_selection_view(request):
             option_id = request.POST.get(f'category_{category.id}')
             if option_id:
                 selected_option_ids.append(int(option_id))
-        
+
         user_selection.selected_options.set(selected_option_ids)
         user_selection.save()
         messages.success(request, "הבחירות נשמרו בהצלחה!")
         return redirect('contract_preview_view')
-
 
     selected_ids = user_selection.selected_options.values_list('id', flat=True)
 
@@ -348,7 +410,7 @@ def product_selection_view(request):
         'categories': categories,
         'selected_ids': selected_ids,
     })
-from .models import UserProfile
+
 
 @login_required
 def contract_preview_view(request):
@@ -364,3 +426,4 @@ def contract_preview_view(request):
         'user_profile': user_profile,
     }
     return render(request, 'main/contract.html', context)
+
