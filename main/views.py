@@ -343,7 +343,7 @@ def _seed_products_from_csv_if_needed():
         return  # כבר יש נתונים
 
     # נתיב לקובץ בתוך הפרויקט
-    csv_path = os.path.join(settings.BASE_DIR, "main", "data", "products.csv")
+    csv_path = os.path.join(settings.BASE_DIR, "main", "data", "selection.csv")
     if not os.path.exists(csv_path):
         # אין קובץ – פשוט לא נזרעים נתונים, העמוד יישאר ריק
         return
@@ -426,4 +426,5 @@ def contract_preview_view(request):
         'user_profile': user_profile,
     }
     return render(request, 'main/contract.html', context)
+
 
